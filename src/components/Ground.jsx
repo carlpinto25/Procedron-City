@@ -59,9 +59,12 @@ const fogFrag = /* glsl */`
   }
 
   void main() {
-    vec2 uv = vUv * 8.0; // scale of the fog
-    uv.y += uTime * 0.15; // drift
-    uv.x -= uTime * 0.08;
+    // Smoother, larger scale for smoke
+    vec2 uv = vUv * 3.0; 
+    
+    // Slow drifting wind effect
+    uv.y += uTime * 0.03; 
+    uv.x -= uTime * 0.015;
 
     // Domain warping for cloud like look
     vec2 q = vec2(0.);
@@ -69,28 +72,35 @@ const fogFrag = /* glsl */`
     q.y = fbm(uv + vec2(1.0));
 
     vec2 r = vec2(0.);
-    r.x = fbm(uv + 1.0 * q + vec2(1.7, 9.2) + 0.15 * uTime);
-    r.y = fbm(uv + 1.0 * q + vec2(8.3, 2.8) + 0.126 * uTime);
+    r.x = fbm(uv + 1.0 * q + vec2(1.7, 9.2) + 0.05 * uTime);
+    r.y = fbm(uv + 1.0 * q + vec2(8.3, 2.8) + 0.02 * uTime);
 
-    float f = fbm(uv + r);
+    // Apply distortion and get final noise value (0.0 to 1.0 roughly)
+    float f = fbm(uv + r * 2.0);
 
-    // Map to fog colors
-    vec3 color1 = vec3(0.01, 0.05, 0.1);  // dark deep base
-    vec3 color2 = vec3(0.00, 1.00, 0.6); // volumetric glowing cyan
-    vec3 color3 = vec3(0.8, 0.0, 1.0);    // neon pink/purple hints
+    // SMOKE COLORS (Dark grays, dirty greens, lit by city ambient light)
+    vec3 color1 = vec3(0.01, 0.02, 0.03);  // Deep shadows/void
+    vec3 color2 = vec3(0.15, 0.18, 0.22);  // Dense gray smoke
+    vec3 color3 = vec3(0.3, 0.4, 0.45);    // Highlights from moonlight/neon
     
-    // Mix based on fbm values
-    vec3 col = mix(color1, color2, clamp((f*f)*2.0, 0.0, 1.0));
-    col = mix(col, color3, clamp(length(q), 0.0, 1.0) * 0.4);
-
-    float alpha = smoothstep(0.0, 1.0, f);
+    // Mix colors based on density
+    // Square the noise value to create clumpier, distinct smoke tendrils
+    float density = clamp((f*f)*2.5, 0.0, 1.0);
+    vec3 col = mix(color1, color2, density);
     
-    // radial distance fade out mapping (from center)
+    // Add specular-like highlights where smoke is thickest
+    col = mix(col, color3, clamp(length(q) * f, 0.0, 1.0) * 0.8);
+
+    // Edge fade out so it doesn't clip as a hard square
     float dist = length(vUv - 0.5) * 2.0;
-    float edgeFade = smoothstep(1.0, 0.2, dist);
+    float edgeFade = smoothstep(1.0, 0.3, dist); // Start fading further out
 
-    // Render out as transparent emissive fog
-    gl_FragColor = vec4(col * 1.5, alpha * edgeFade * 0.9);
+    // The alpha depends on the density of the noise
+    float alpha = smoothstep(0.1, 0.9, f) * 0.8; // Max 80% opacity for thickest parts
+
+    // Render transparent smoke
+    // We don't boost the rgb here like emissive neon fog, just standard blending
+    gl_FragColor = vec4(col, alpha * edgeFade);
   }
 `
 
@@ -104,7 +114,7 @@ export function Ground() {
   // We set transparent to true so the alpha map properly blends the fog over the void base, 
   // depthWrite to false to avoid cutting out geometry behind it if overlapping
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.2, 0]}>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.5, 0]}>
       <planeGeometry args={[500, 500]} />
       <shaderMaterial
         ref={matRef}
@@ -113,7 +123,7 @@ export function Ground() {
         uniforms={{ uTime: { value: 0 } }}
         transparent={true}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+      // Use normal alpha blending for smoke instead of additive glowing blending
       />
     </mesh>
   )
