@@ -1,0 +1,130 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── HUD ── */
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud-top-left {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  color: #00ffe7;
+  text-shadow: 0 0 8px #00ffe7, 0 0 20px #00ffe7;
+  letter-spacing: 0.15em;
+}
+
+#hud-top-left h1 {
+  font-size: 1.05rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+#hud-top-left .sub {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  margin-top: 3px;
+  letter-spacing: 0.25em;
+}
+
+#hud-top-right {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  text-align: right;
+  color: #ff4dff;
+  text-shadow: 0 0 8px #ff4dff;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  line-height: 1.8;
+  opacity: 0.75;
+}
+
+#hud-bottom {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffffff;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  opacity: 0.3;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* corner brackets decoration */
+#hud::before, #hud::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: #00ffe7;
+  border-style: solid;
+  opacity: 0.4;
+}
+#hud::before {
+  bottom: 14px;
+  left: 14px;
+  border-width: 0 0 2px 2px;
+}
+#hud::after {
+  bottom: 14px;
+  right: 14px;
+  border-width: 0 2px 2px 0;
+}
+
+/* scan line */
+@keyframes scanline {
+  0%   { top: -4px; }
+  100% { top: 100%; }
+}
+
+.scanline {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(transparent, rgba(0,255,231,0.06), transparent);
+  animation: scanline 7s linear infinite;
+  pointer-events: none;
+}
+
+/* blinking cursor on title */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: #00ffe7;
+  vertical-align: text-bottom;
+  margin-left: 4px;
+  animation: blink 1.1s step-end infinite;
+}
