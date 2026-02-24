@@ -22,8 +22,8 @@ export function HUD() {
             <div className="scanline" />
 
             <div id="hud-top-left">
-                <h1>SECTOR‑7 // NEXUS CITY<span className="cursor" /></h1>
-                <div className="sub">PROCEDURAL GENERATION ACTIVE · REACT THREE FIBER</div>
+                <h1>PROCEDRON CITY<span className="cursor" /></h1>
+                <div className="sub">PROCEDURAL GENERATION ACTIVE</div>
             </div>
 
             <div id="hud-top-right">

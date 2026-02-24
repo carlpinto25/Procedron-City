@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, AdaptiveDpr } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
@@ -14,6 +15,31 @@ import { Lights } from './components/Lights'
 import { HUD } from './components/HUD'
 
 export default function App() {
+    useEffect(() => {
+        const percentEl = document.getElementById('loader-percent')
+        const loader = document.getElementById('loader')
+
+        let p = 0
+        const interval = setInterval(() => {
+            // Randomly increase percentage to simulate loading
+            p += Math.floor(Math.random() * 18) + 8
+            if (p >= 100) {
+                p = 100
+                clearInterval(interval)
+                // Fade out once we hit 100%
+                if (loader) {
+                    setTimeout(() => {
+                        loader.style.opacity = '0'
+                        setTimeout(() => loader.remove(), 800)
+                    }, 300)
+                }
+            }
+            if (percentEl) percentEl.innerText = p + '%'
+        }, 120)
+
+        return () => clearInterval(interval)
+    }, [])
+
     return (
         <>
             <Canvas
