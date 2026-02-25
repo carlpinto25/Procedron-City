@@ -28,7 +28,6 @@ export function HUD() {
 
             <div id="hud-top-right">
                 <div>POPULATION: <span style={{ color: '#00ffe7' }}>∞</span></div>
-                <div>THREAT LVL: <span style={{ color: '#ff4444' }}>ELEVATED</span></div>
                 <div>LOCAL TIME: {time}</div>
             </div>
 
