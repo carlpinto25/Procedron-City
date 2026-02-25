@@ -20,14 +20,7 @@ export function Lights() {
                 color={0x4488bb}
                 intensity={1.8}
                 position={[60, 120, 40]}
-                castShadow
-                shadow-mapSize={[2048, 2048]}
-                shadow-camera-near={10}
-                shadow-camera-far={400}
-                shadow-camera-left={-180}
-                shadow-camera-right={180}
-                shadow-camera-top={180}
-                shadow-camera-bottom={-180}
+
             />
             {NEON_COLORS.map((col, i) => {
                 const angle = (i / NEON_COLORS.length) * Math.PI * 2

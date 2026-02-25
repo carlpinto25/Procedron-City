@@ -30,10 +30,6 @@ export function HUD() {
                 <div>POPULATION: <span style={{ color: '#00ffe7' }}>∞</span></div>
                 <div>LOCAL TIME: {time}</div>
             </div>
-
-            <div id="hud-bottom">
-                drag to orbit &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; right-drag to pan
-            </div>
         </div>
     )
 }
