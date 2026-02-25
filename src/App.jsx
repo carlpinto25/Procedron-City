@@ -16,7 +16,6 @@ function FogAnimator() {
 
 import { City } from './components/City'
 import { Ground } from './components/Ground'
-import { HoloRings } from './components/HoloRings'
 import { Lights } from './components/Lights'
 import { HUD } from './components/HUD'
 import { GroundFog } from './components/GroundFog'
@@ -70,7 +69,6 @@ export default function App() {
                 <Lights />
                 <Ground />
                 <City />
-                <HoloRings />
 
                 <OrbitControls
                     enableDamping
