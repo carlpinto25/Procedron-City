@@ -3,37 +3,50 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { rand, randI, pick, EDGE_COLORS, BUILDING_COLORS } from '../utils'
 
-//Window grid on one face
+//Window grid on one face — all windows merged into ONE mesh per face
 function WindowGrid({ faceW, faceH, offsetZ, rotY, winColor }) {
-    const cols = Math.floor(faceW / 1.8)
-    const rows = Math.floor(faceH / 2.2)
-    const wins = useMemo(() => {
-        const out = []
+    const geo = useMemo(() => {
+        const cols = Math.floor(faceW / 1.8)
+        const rows = Math.floor(faceH / 2.2)
+        const WW = 0.35, WH = 0.55
+        const positions = []
+        const uvs = []
+        const indices = []
+        let vi = 0
         for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
                 if (Math.random() > 0.45) continue
-                out.push([
-                    -faceW / 2 + (c + 0.5) * (faceW / cols),
-                    -faceH / 2 + (r + 0.5) * (faceH / rows) + faceH / rows * 0.1,
-                ])
+                const wx = -faceW / 2 + (c + 0.5) * (faceW / cols)
+                const wy = -faceH / 2 + (r + 0.5) * (faceH / rows) + faceH / rows * 0.1
+                // Two triangles per window quad
+                positions.push(
+                    wx - WW / 2, wy - WH / 2, 0,
+                    wx + WW / 2, wy - WH / 2, 0,
+                    wx + WW / 2, wy + WH / 2, 0,
+                    wx - WW / 2, wy + WH / 2, 0,
+                )
+                uvs.push(0, 0, 1, 0, 1, 1, 0, 1)
+                indices.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3)
+                vi += 4
             }
         }
-        return out
-    }, [cols, rows, faceW, faceH])
+        const g = new THREE.BufferGeometry()
+        g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+        g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+        g.setIndex(indices)
+        g.computeVertexNormals()
+        return g
+    }, [faceW, faceH])
 
+    const mat = useMemo(() => new THREE.MeshStandardMaterial({
+        color: winColor,
+        emissive: winColor,
+        emissiveIntensity: rand(1, 3),
+    }), [winColor])
+
+    if (!geo.index || geo.index.count === 0) return null
     return (
-        <group rotation={[0, rotY, 0]} position={[0, 0, offsetZ]}>
-            {wins.map(([wx, wy], i) => (
-                <mesh key={i} position={[wx, wy, 0]}>
-                    <planeGeometry args={[0.35, 0.55]} />
-                    <meshStandardMaterial
-                        color={winColor}
-                        emissive={winColor}
-                        emissiveIntensity={rand(1, 3)}
-                    />
-                </mesh>
-            ))}
-        </group>
+        <mesh geometry={geo} material={mat} rotation={[0, rotY, 0]} position={[0, 0, offsetZ]} />
     )
 }
 
@@ -61,22 +74,13 @@ function NeonStrip({ bw, bh, bd, color, yFrac }) {
     )
 }
 
-//Rooftop antenna
+//Rooftop antenna — static, no per-frame callbacks
 function Antenna({ bh }) {
-    const beaconRef = useRef()
-    const beaconLtRef = useRef()
-    const phase = useMemo(() => Math.random() * Math.PI * 2, [])
-    const speed = useMemo(() => rand(0.8, 2.5), [])
     const color = useMemo(() => pick(EDGE_COLORS), [])
     const antH = useMemo(() => rand(3, 10), [])
     const antR = useMemo(() => rand(0.04, 0.12), [])
     const hasBeacon = useMemo(() => Math.random() > 0.4, [])
-
-    useFrame(({ clock }) => {
-        const s = 0.5 + 0.5 * Math.sin(clock.getElapsedTime() * speed + phase)
-        if (beaconRef.current) beaconRef.current.material.emissiveIntensity = 1 + 4 * s
-        if (beaconLtRef.current) beaconLtRef.current.intensity = s * 12
-    })
+    const emissive = useMemo(() => rand(2, 5), [])
 
     return (
         <group position={[0, bh / 2, 0]}>
@@ -85,13 +89,10 @@ function Antenna({ bh }) {
                 <meshStandardMaterial color={0x223344} metalness={0.9} roughness={0.2} />
             </mesh>
             {hasBeacon && (
-                <>
-                    <mesh ref={beaconRef} position={[0, antH + antR * 1.4, 0]}>
-                        <sphereGeometry args={[antR * 1.4, 8, 8]} />
-                        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3} />
-                    </mesh>
-                    <pointLight ref={beaconLtRef} color={color} intensity={8} distance={18} decay={2} position={[0, antH + antR * 1.4, 0]} />
-                </>
+                <mesh position={[0, antH + antR * 1.4, 0]}>
+                    <sphereGeometry args={[antR * 1.4, 8, 8]} />
+                    <meshStandardMaterial color={color} emissive={color} emissiveIntensity={emissive} />
+                </mesh>
             )}
         </group>
     )

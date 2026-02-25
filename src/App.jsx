@@ -55,11 +55,9 @@ export default function App() {
                     toneMapping: 4,          // ACESFilmicToneMapping
                     toneMappingExposure: 0.9,
                 }}
-                shadows
-                onCreated={({ scene, gl }) => {
+                onCreated={({ scene }) => {
                     scene.background = new Color(0x1a3040)
                     scene.fog = new FogExp2(0x1a3040, 0.007)
-                    gl.shadowMap.enabled = true
                 }}
             >
                 <AdaptiveDpr pixelated />
@@ -84,7 +82,7 @@ export default function App() {
                     <Bloom
                         intensity={0.85}
                         radius={0.55}
-                        luminanceThreshold={0.12}
+                        luminanceThreshold={0.30}
                         luminanceSmoothing={0.08}
                         blendFunction={BlendFunction.ADD}
                     />

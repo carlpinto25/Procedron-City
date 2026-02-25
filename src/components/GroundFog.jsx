@@ -40,7 +40,7 @@ const fragmentShader = /* glsl */`
     float a = 0.5;
     vec2 shift = vec2(100.0);
     mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 2; ++i) {
         v += a * noise(x);
         x = rot * x * 2.0 + shift;
         a *= 0.5;
@@ -81,15 +81,12 @@ export function GroundFog() {
 
   // Stack horizontal planes. 
   // The lower we go, the denser the fog (higher max opacity).
-  // Taller, thicker layers with very high density near the ground
+  // 4 layers from y=0.5 to y=50, density falls off gradually
   const layers = [
-    { y: 0.5, density: 1.00 },
-    { y: 4.0, density: 0.95 },
-    { y: 8.0, density: 0.85 },
-    { y: 14.0, density: 0.65 },
-    { y: 22.0, density: 0.40 },
-    { y: 35.0, density: 0.20 },
-    { y: 50.0, density: 0.08 },
+    { y: 10.0, density: 1.00 },
+    { y: 15.0, density: 0.65 },
+    { y: 25.0, density: 0.30 },
+    { y: 35.0, density: 0.10 },
   ]
 
   return (
