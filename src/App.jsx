@@ -1,18 +1,25 @@
 import { useEffect } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, AdaptiveDpr } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { BlendFunction } from 'postprocessing'
 import { Color, FogExp2 } from 'three'
 
+function FogAnimator() {
+    useFrame(({ scene, clock }) => {
+        if (scene.fog) {
+            scene.fog.density = 0.007 + Math.sin(clock.elapsedTime * 0.5) * 0.002
+        }
+    })
+    return null
+}
+
 import { City } from './components/City'
 import { Ground } from './components/Ground'
-import { Stars } from './components/Stars'
-import { Particles } from './components/Particles'
-import { Vehicles } from './components/Vehicles'
 import { HoloRings } from './components/HoloRings'
 import { Lights } from './components/Lights'
 import { HUD } from './components/HUD'
+import { GroundFog } from './components/GroundFog'
 
 export default function App() {
     useEffect(() => {
@@ -51,19 +58,18 @@ export default function App() {
                 }}
                 shadows
                 onCreated={({ scene, gl }) => {
-                    scene.background = new Color(0x010408)
-                    scene.fog = new FogExp2(0x010408, 0.008)
+                    scene.background = new Color(0x1a3040)
+                    scene.fog = new FogExp2(0x1a3040, 0.007)
                     gl.shadowMap.enabled = true
                 }}
             >
                 <AdaptiveDpr pixelated />
+                <FogAnimator />
+                <GroundFog />
 
                 <Lights />
                 <Ground />
                 <City />
-                <Stars />
-                <Particles />
-                <Vehicles />
                 <HoloRings />
 
                 <OrbitControls
